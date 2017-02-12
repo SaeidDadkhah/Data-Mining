@@ -11,8 +11,8 @@ library('randomForest')
 
 
 # Getting data
-train <- read.csv('../train.csv')
-test <- read.csv('../test.csv')
+train <- read.csv('../input/train.csv')
+test <- read.csv('../input/test.csv')
 
 full <- bind_rows(train, test)
 str(full)
@@ -129,10 +129,26 @@ set.seed(9231066 + 2)
 rf_model <- randomForest(factor(Survived) ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked + Title +
                              FSizeD + Child + Mother,
                          data = train)
-plot(rf_model, ylim(0, 0.36))
-#legend('topright', )
+par(mfrow = c(1, 1))
+plot(rf_model, ylim = c(0, 0.36))
+legend('topright', colnames(rf_model$err.rate), col = 1:3, fill = 1:3)
 
+## Variable importance
+importance <- importance(rf_model)
+varImportance <- data.frame(Variables = row.names(importance),
+                            Importance = round(importance[, 'MeanDecreaseGini'], 2))
+rankImportance <- varImportance %>%
+    mutate(Rank = paste0('#', dense_rank(desc(Importance))))
+plot_Importance <- ggplot(rankImportance,
+                          aes(x = reorder(Variables, Importance), y = Importance, fill = Importance))
+plot_Importance <- plot_Importance +
+    geom_bar(stat = 'identity') +
+    geom_text(aes(Variables, y = 0.5, label = Rank), hjust = 0, vjust = 0.55, size = 4, colour = 'red') +
+    labs(x = 'Variables') +
+    coord_flip()
+print(plot_Importance)
 
-
-
-
+## Output
+prediction <- predict(rf_model, test)
+solution <- data.frame(PassengerID = test$PassengerId, Survived = prediction)
+write.csv(solution, file = 'rf_mod_solution.csv', row.names = FALSE)
