@@ -2,8 +2,13 @@ if (!'dplyr' %in% rownames(installed.packages())) {install.packages('dplyr')}
 library('dplyr')
 if (!'ggplot2' %in% rownames(installed.packages())) {install.packages('ggplot2')}
 library('ggplot2')
-if (!"scales" %in% rownames(installed.packages())) {install.packages('scales')}
+if (!'scales' %in% rownames(installed.packages())) {install.packages('scales')}
 library('scales')
+if (!'mice' %in% rownames(installed.packages())) {install.packages('mice')}
+library('mice')
+if (!'randomForest' %in% rownames(installed.packages())) {install.packages('randomForest')}
+library('randomForest')
+
 
 # Getting data
 train <- read.csv('../train.csv')
@@ -12,7 +17,8 @@ test <- read.csv('../test.csv')
 full <- bind_rows(train, test)
 str(full)
 
-# Feature engineering
+
+# Feature engineering I
 ## Get passenger title
 full$Title <- gsub('(.*, )|(\\..*)', '', full$Name)
 
@@ -33,8 +39,14 @@ plot_FSize_Survived <- plot_FSize_Survived +
     labs(x = "Family Size")
 print(plot_FSize_Survived)
 
+full$FSizeD[full$FSize == 1] <- 'singleton'
+full$FSizeD[1 < full$FSize & full$FSize < 5] <- 'small'
+full$FSizeD[4 < full$FSize] <- 'large'
+mosaicplot(table(full$FSizeD, full$Survived), main = 'Family size by survival', shade = TRUE)
+
 ## Deck
 full$Deck <- factor(sapply(full$Cabin, function(x) strsplit(x, NULL)[[1]][1]))
+
 
 # Missingness
 ## Embarked
@@ -69,3 +81,58 @@ full$Fare[missingFare] <- median(full[full$Pclass == full[missingFare[1], "Pclas
                                  na.rm = TRUE)
 
 ## Predictive imputation
+summary(full$Age)
+
+full$Surname <- sapply(full$Name, function(x) strsplit(x, split = '[,.]')[[1]][1])
+full$Family <- paste(full$Surname, full$FSize, sep = '_')
+factor_vars <- c('PassengerId', 'Pclass', 'Sex', 'Embarked', 'Title', 'Surname', 'Family', 'FSizeD')
+full[factor_vars] <- lapply(full[factor_vars], function(x) as.factor(x))
+
+set.seed(9231066)
+mice_mod <- mice(full[, !names(full) %in%
+                          c('PassengerId', 'Name', 'Ticket', 'Cabin', 'Family', 'Surname', 'Survived')],
+                 method = 'rf')
+mice_output <- complete(mice_mod)
+
+par(mfrow = c(1, 2))
+hist(full$Age, freq = F, main = 'Age: Original Data', col = 'darkgreen', ylim = c(0, 0.04))
+hist(mice_output$Age, freq = F, main = 'Age: MICE Output', col = 'lightgreen', ylim = c(0, 0.04))
+
+full$Age <- mice_output$Age
+summary(full$Age)
+
+# Feature engineering II
+## Child and mother features
+plot_Age_Survived_Sex <- ggplot(full[1:891, ], aes(Age, fill = factor(Survived)))
+plot_Age_Survived_Sex <- plot_Age_Survived_Sex +
+    geom_histogram() +
+    facet_grid(.~Sex)
+print(plot_Age_Survived_Sex)
+
+full$Child[full$Age < 18] <- 'Child'
+full$Child[full$Age >= 18] <- 'Adult'
+table(full$Child, full$Survived)
+
+full$Mother <- 'Not Mother'
+full$Mother[full$Sex == 'female' & full$Parch > 0 & full$Age > 18 & full$Title != 'Miss'] <- 'Mother'
+table(full$Mother, full$Survived)
+
+full$Child <- as.factor(full$Child)
+full$Mother <- as.factor(full$Mother)
+
+# Prediction
+train <- full[1:nrow(train), ]
+test <- full[(nrow(train) + 1):(nrow(train) + nrow(test)), ]
+
+## Random Forest model
+set.seed(9231066 + 2)
+rf_model <- randomForest(factor(Survived) ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked + Title +
+                             FSizeD + Child + Mother,
+                         data = train)
+plot(rf_model, ylim(0, 0.36))
+#legend('topright', )
+
+
+
+
+
