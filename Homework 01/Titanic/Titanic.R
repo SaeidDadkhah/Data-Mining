@@ -22,7 +22,7 @@ str(full)
 ## Get passenger title
 full$Title <- gsub('(.*, )|(\\..*)', '', full$Name)
 
-table(full$Name, full$Title)
+table(full$Sex, full$Title)
 rare_title <- c('Dona', 'Lady', 'the Countess','Capt', 'Col', 'Don', 'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer')
 full$Title[full$Title == 'Mlle']        <- 'Miss' 
 full$Title[full$Title == 'Ms']          <- 'Miss'
