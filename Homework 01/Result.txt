@@ -1,0 +1,2 @@
+Titanic.R:	rf_mod_solution.csv:	0.79904
+PyTanic.py:	PyTanic_rf0.csv:		0.72727
