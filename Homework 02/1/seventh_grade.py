@@ -45,8 +45,6 @@ for index, row in train.iterrows():
             tmp.append(t[i-1].cdf(row.get_value(i, 0)))
     if len(tmp) != 0:
         tmp = sum(tmp)/len(tmp)
-        # print(tmp)
-        # print(x)
         for i in zeros:
             res = t[i-1].ppf(tmp)
             res = min(res, 20)
@@ -55,7 +53,6 @@ for index, row in train.iterrows():
     else:
         for i in zeros:
             res = row.set_value(i, value=t[i-1].ppf(0.5))
-        # print(x)
 
 # '''
 fig, figs = plt.subplots(1, 6)
@@ -114,7 +111,7 @@ print(np.mean(score))
 
 rf.fit(train, y)
 pred = rf.predict(train)
-print(rmse(pred-y))
+print(rmse(pred, y))
 
 output = pd.DataFrame({
     1: train[1],
