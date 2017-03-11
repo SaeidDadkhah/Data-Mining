@@ -3,17 +3,22 @@ import scipy.stats as dis
 import numpy as np
 
 import matplotlib.pyplot as plt
-import seaborn as sns
 
+
+from sklearn.model_selection import cross_val_score
+# '''
 from sklearn.linear_model import LinearRegression, Lasso
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.ensemble import AdaBoostRegressor
+# '''
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import cross_val_score
-
 # from k_fold_cv import k_fold_cv
 from rmse import rmse
 
+# Init
+show_plots = True
+
+# Read data
 raw_train = pd.read_csv('train.csv', header=None, names=range(1, 8))
 train = pd.DataFrame(raw_train.drop(7, axis=1))
 
@@ -33,7 +38,10 @@ for i in range(1, 7):
     std.append(tmp.std())
     df = tmp.count()[i]
     t.append(dis.t(100, mean[-1], std[-1]))
-# sns.plt.show(fig)
+
+if show_plots:
+    plt.figure()
+    plt.draw()
 
 for index, row in train.iterrows():
     zeros = []
@@ -54,12 +62,11 @@ for index, row in train.iterrows():
         for i in zeros:
             res = row.set_value(i, value=t[i-1].ppf(0.5))
 
-# '''
 fig, figs = plt.subplots(1, 6)
 for i in range(1, 7):
     train[i].hist(ax=figs[i - 1])
-# sns.plt.show(fig)
-# '''
+# plt.figure()
+# plt.draw()
 
 for i, j in zip(mean, train.mean()):
     print('{i}:{j}'.format(i=i, j=j))
@@ -67,6 +74,7 @@ for i, j in zip(mean, train.mean()):
 # Train models
 y = raw_train[7]
 
+# '''
 print('Linear Regression:')
 lr = LinearRegression()
 score = (-cross_val_score(lr, train, y, scoring='neg_mean_squared_error', cv=10)) ** 0.5
@@ -103,7 +111,7 @@ print(np.mean(score))
 abr.fit(train, y)
 pred = abr.predict(train)
 print(rmse(pred, y))
-
+# '''
 print('Random Forest:')
 rf = RandomForestRegressor()
 score = (-cross_val_score(rf, train, y, scoring='neg_mean_squared_error', cv=10)) ** 0.5
@@ -123,3 +131,6 @@ output = pd.DataFrame({
     7: rf.predict(train)
 })
 output.to_csv('output.csv')
+
+if show_plots:
+    plt.show()
