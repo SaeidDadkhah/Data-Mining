@@ -1,0 +1,162 @@
+Random Forest:
+	Variance Th:
+		0.147989366525
+		0.0658197407609
+	Select:
+		Linear Regression: 150
+		0.130580113409
+		0.105995706235
+		Lasso Regression (alpha: 0.001):
+		0.137092247441
+		0.122931563456
+		Lasso Regression (alpha: 0.003):
+		0.146233640336
+		0.1352039183
+		Lasso Regression (alpha: 0.01):
+		0.154260555402
+		0.14561374473
+		Lasso Regression (alpha: 0.03):
+		0.159140210946
+		0.150884954085
+		Lasso Regression (alpha: 0.1):
+		0.174182713983
+		0.166736979402
+		Lasso Regression (alpha: 0.3):
+		0.176032971914
+		0.169528400539
+		Gradient Boosting:
+		0.13234650332
+		0.0883859915538
+		AdaBoost:
+		0.17706538502
+		0.156031493255
+		Random Forest:
+		0.154293787826
+		0.0596646002417
+
+		Linear Regression: 175
+		0.132540666204
+		0.111390666328
+		Lasso Regression (alpha: 0.001):
+		0.136349255063
+		0.123005853497
+		Lasso Regression (alpha: 0.003):
+		0.145486209673
+		0.135378651124
+		Lasso Regression (alpha: 0.01):
+		0.153709306136
+		0.146413200833
+		Lasso Regression (alpha: 0.03):
+		0.158618128166
+		0.151665829014
+		Lasso Regression (alpha: 0.1):
+		0.17381286169
+		0.167500822317
+		Lasso Regression (alpha: 0.3):
+		0.175742316719
+		0.16996675867
+		Gradient Boosting:
+		0.13174411608
+		0.0877464353505
+		AdaBoost:
+		0.175858440362
+		0.162004856842
+		Random Forest:
+		0.149605839384
+		0.06649795341
+
+		Linear Regression: 190
+		0.13540243901
+		0.10246184225
+		Lasso Regression (alpha: 0.001):
+		0.137283812443
+		0.122901647819
+		Lasso Regression (alpha: 0.003):
+		0.146233640335
+		0.1352039183
+		Lasso Regression (alpha: 0.01):
+		0.154260555402
+		0.14561374473
+		Lasso Regression (alpha: 0.03):
+		0.159140210946
+		0.150884954085
+		Lasso Regression (alpha: 0.1):
+		0.174182713983
+		0.166736979402
+		Lasso Regression (alpha: 0.3):
+		0.176032971914
+		0.169528400539
+		Gradient Boosting:
+		0.133300664192
+		0.0883293148765
+		AdaBoost:
+		0.176243789217
+		0.152507224047
+		Random Forest:
+		0.150580106076
+		0.0656102661876
+
+PCA:
+	200:
+		Linear Regression:
+		0.124723759875
+		0.100233589083
+		Lasso Regression (alpha: 0.001):
+		0.121970695311
+		0.101328611199
+		Lasso Regression (alpha: 0.003):
+		0.12656311123
+		0.107391039463
+		Lasso Regression (alpha: 0.01):
+		0.150982088876
+		0.132102193089
+		Lasso Regression (alpha: 0.03):
+		0.189218045986
+		0.178867346828
+		Lasso Regression (alpha: 0.1):
+		0.274904179711
+		0.268673137754
+		Lasso Regression (alpha: 0.3):
+		0.395803512204
+		0.3965692571
+		Gradient Boosting:
+		0.151018964504
+		0.0791945292699
+		AdaBoost:
+		0.19970134193
+		0.165826770793
+		Random Forest:
+		0.183478395259
+		0.0755636389633
+
+	150:
+		Linear Regression:
+		0.122144152168
+		0.106084113163
+		Lasso Regression (alpha: 0.001):
+		0.120911780307
+		0.106769685512
+		Lasso Regression (alpha: 0.003):
+		0.126330797722
+		0.111077064939
+		Lasso Regression (alpha: 0.01):
+		0.151280562465
+		0.132502375886
+		Lasso Regression (alpha: 0.03):
+		0.189218045986
+		0.178867346828
+		Lasso Regression (alpha: 0.1):
+		0.274904179711
+		0.268673137754
+		Lasso Regression (alpha: 0.3):
+		0.395803512204
+		0.3965692571
+		Gradient Boosting:
+		0.148544856704
+		0.0822347230717
+		AdaBoost:
+		0.195644423198
+		0.166734644313
+		Random Forest:
+		0.179994322063
+		0.0769126212474
