@@ -3,25 +3,30 @@ import scipy.stats as dis
 import numpy as np
 
 import matplotlib.pyplot as plt
-# import seaborn as sns
 
+# from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.decomposition import PCA
 
 from sklearn.model_selection import cross_val_score
-'''
-from sklearn.linear_model import LinearRegression, Lasso
+
+# from sklearn.linear_model import LinearRegression, Lasso
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.ensemble import AdaBoostRegressor
-# '''
-from sklearn.ensemble import RandomForestRegressor
-# from k_fold_cv import k_fold_cv
+# from sklearn.ensemble import AdaBoostRegressor
+# from sklearn.ensemble import RandomForestRegressor
+
 from rmse import rmse
+from impute import imputation
 
 # Init
 show_plots = False
 
+generate_output = True
+
 # Read data
 raw_train = pd.read_csv('train.csv', header=None, names=range(1, 8))
+test = pd.read_csv('test.csv', header=None, names=range(1, 7))
 train = pd.DataFrame(raw_train.drop(7, axis=1))
+y = raw_train[7]
 
 print(train.head())
 
@@ -45,23 +50,9 @@ if show_plots:
     plt.draw()
 
 for index, row in train.iterrows():
-    zeros = []
-    tmp = []
-    for i in range(1, 7):
-        if row.get_value(i, 0) == 0:
-            zeros.append(i)
-        else:
-            tmp.append(t[i-1].cdf(row.get_value(i, 0)))
-    if len(tmp) != 0:
-        tmp = sum(tmp)/len(tmp)
-        for i in zeros:
-            res = t[i-1].ppf(tmp)
-            res = min(res, 20)
-            res = max(res, 0)
-            row.set_value(i, value=res)
-    else:
-        for i in zeros:
-            res = row.set_value(i, value=t[i-1].ppf(0.5))
+    imputation(row, t)
+for index, row in test.iterrows():
+    imputation(row, t)
 
 fig, figs = plt.subplots(1, 6)
 for i in range(1, 7):
@@ -72,9 +63,15 @@ for i in range(1, 7):
 for i, j in zip(mean, train.mean()):
     print('{i}:{j}'.format(i=i, j=j))
 
-# Train models
-y = raw_train[7]
+# Dimension reduction
+# selector = SelectKBest(f_classif, k=5)
+# train = selector.fit_transform(X=train, y=y)
+pca = PCA(n_components=5, whiten=True)
+pca.fit(train, y)
+train = pca.transform(train)
+X_test = pca.transform(test)
 
+# Train models
 '''
 print('Linear Regression:')
 lr = LinearRegression()
@@ -94,6 +91,7 @@ for i in [0.001, 0.003, 0.01, 0.03, 0.1, 0.3]:
     lar.fit(train, y)
     pred = lar.predict(train)
     print(rmse(pred, y))
+# '''
 
 print('Gradient Boosting:')
 gbr = GradientBoostingRegressor()
@@ -103,7 +101,7 @@ print(np.mean(score))
 gbr.fit(train, y)
 pred = gbr.predict(train)
 print(rmse(pred, y))
-
+'''
 print('AdaBoost:')
 abr = AdaBoostRegressor()
 score = (-cross_val_score(abr, train, y, scoring='neg_mean_squared_error', cv=10)) ** 0.5
@@ -112,7 +110,7 @@ print(np.mean(score))
 abr.fit(train, y)
 pred = abr.predict(train)
 print(rmse(pred, y))
-# '''
+
 print('Random Forest:')
 rf = RandomForestRegressor()
 score = (-cross_val_score(rf, train, y, scoring='neg_mean_squared_error', cv=10)) ** 0.5
@@ -121,17 +119,19 @@ print(np.mean(score))
 rf.fit(train, y)
 pred = rf.predict(train)
 print(rmse(pred, y))
+# '''
 
-output = pd.DataFrame({
-    1: train[1],
-    2: train[2],
-    3: train[3],
-    4: train[4],
-    5: train[5],
-    6: train[6],
-    7: rf.predict(train)
-})
-output.to_csv('output.csv')
+if generate_output:
+    output = pd.DataFrame({
+        1: test[1],
+        2: test[2],
+        3: test[3],
+        4: test[4],
+        5: test[5],
+        6: test[6],
+        7: gbr.predict(X_test)
+    })
+    output.to_csv('pca5gbr.csv', header=None, index=False)
 
 if show_plots:
     plt.show()
