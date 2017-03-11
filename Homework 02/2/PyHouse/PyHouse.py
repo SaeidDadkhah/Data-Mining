@@ -4,7 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# from sklearn.decomposition import PCA
+from sklearn.feature_selection import variance_threshold, SelectKBest, f_regression
+from sklearn.decomposition import PCA
 # '''
 from sklearn.linear_model import LinearRegression, Lasso
 from sklearn.ensemble import GradientBoostingRegressor
@@ -16,8 +17,14 @@ from sklearn.ensemble import RandomForestRegressor
 from rmse import rmse
 
 # 0. Init script
-show_figures = True
-use_pca = False
+show_figures = False
+
+select_features = False
+var_th = False
+select_k_best = True
+use_pca = True
+
+generate_output = False
 
 # 1. Load data
 train = pd.read_csv('../input/train.csv')
@@ -184,30 +191,41 @@ for column in train.columns:
 # null_columns = test.columns[test.isnull().any()]
 # print(sum(test.isnull().sum()))
 
-# 6. PCA
+# 6. Select features
 y = np.log(train['SalePrice'])
 train.drop(['Id', 'SalePrice'], axis=1, inplace=True)
 X_test = test.drop('Id', axis=1)
 
-'''
+print(train.shape)
+
+if select_features:
+    if var_th:
+        print('Selecting features: variance threshold')
+        selector = variance_threshold.VarianceThreshold()
+        train = selector.fit_transform(X=train, y=y)
+        X_test = selector.transform(X_test)
+    elif select_k_best:
+        print('Selecting features: select k best')
+        selector = SelectKBest(f_regression, k=175)
+        train = selector.fit_transform(X=train, y=y)
+        X_test = selector.transform(X=X_test)
+
+# 7. PCA
+
+# '''
 if use_pca:
-    data = pd.concat([train, test], ignore_index=True)
-    data = np.log(data)
-    data = pd.get_dummies(data)
-    data = np.log(data)
-    # labels = np.log(labels)
-    # data[data == -np.inf] = 0
-    # data[data == np.inf] = 0
-    pca = PCA(n_components=36, whiten=True)
+    data = pd.concat([train, X_test], ignore_index=True)
+    pca = PCA(n_components=200, whiten=True)
     pca.fit(data)
     data = pca.transform(data)
     train = data[:1460]
     print(train.shape)
     X_test = data[1460:]
     print(X_test.shape)
-'''
+# '''
+print(train.shape)
 
-# 7. Model Selection
+# 8. Model Selection
 # '''
 print('Linear Regression:')
 lr = LinearRegression()
@@ -245,7 +263,7 @@ print(np.mean(score))
 abr.fit(train, y)
 pred = abr.predict(train)
 print(rmse(pred, y))
-# '''
+
 print('Random Forest:')
 rf = RandomForestRegressor()
 score = (-cross_val_score(rf, train, y, scoring='neg_mean_squared_error', cv=10)) ** 0.5
@@ -254,14 +272,17 @@ print(np.mean(score))
 rf.fit(train, y)
 pred = rf.predict(train)
 print(rmse(pred, y))
+# '''
 
-# 8. Generate Output
-y = np.exp(rf.predict(X_test))
-submission = pd.DataFrame({
-    'Id': test['Id'],
-    'SalePrice': y
-})
-submission.to_csv('PyHome_rf0.csv', index=False)
+# 9. Generate Output
+if generate_output:
+    y = np.exp(lar.predict(X_test))
+    submission = pd.DataFrame({
+        'Id': test['Id'],
+        'SalePrice': y
+    })
+    submission.to_csv('lar0_001.csv', index=False)
 
+# 10. Finalize
 if show_figures:
     plt.show()
